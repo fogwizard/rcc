@@ -1,0 +1,6 @@
+/rcc
+/res
+*.o
+*.ko
+*.lst
+*.obj
