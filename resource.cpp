@@ -5,7 +5,7 @@ resource::resource(string dir): mDir(dir)
 
 }
 
-int resource::dumpHeader(string name)
+int resource::saveHeader(string name)
 {
     std::ofstream fheader(name, std::ios::out | std::ios::trunc);
 
@@ -29,10 +29,12 @@ int resource::run(void)
 
     trave_dir(mDir.c_str());
     if(mFileList.size() == 0) {
+        cout << "no file found on path:" << mDir << endl;
         return -1;
     }
 
-    dumpHeader(res_hpp);
+    saveHeader(res_hpp);
+    cout << "save res.h to path:" <<  res_hpp << endl;
 
     std::ofstream fsource(res_cpp, std::ios::binary);
     fsource << "#include <iostream>" << endl;
@@ -89,6 +91,8 @@ int resource::run(void)
 
     fsource.close();
 
+    cout << "save res.cpp to path:" <<  res_cpp << endl;
+
     return 0;
 }
 
@@ -124,7 +128,7 @@ int resource::trave_dir(const char* path)
         stat(p, &st);
         if(!S_ISDIR(st.st_mode)) {
             string s(p);
-            mFileList.push_back(new filePath(s,s));
+            mFileList.push_back(new filePath(s,s.substr(mDir.length())));
         } else {
             trave_dir(p);
         }

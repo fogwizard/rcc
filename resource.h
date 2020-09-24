@@ -36,7 +36,7 @@ class resource
 public:
     resource(string dir);
     int run(void);
-    int dumpHeader(string file);
+    int saveHeader(string file);
     string toHEX(unsigned char c);
     int trave_dir(const char* path);
 private:
@@ -46,3 +46,4 @@ private:
 };
 
 #endif
+
