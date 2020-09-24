@@ -10,8 +10,10 @@ int resource::dumpHeader(string name)
     std::ofstream fheader(name, std::ios::out | std::ios::trunc);
 
     fheader << "#ifndef RESOURCES_H\n"
-            "#define RESOURCES_H\n\n"
-            "const char* getResource(const char* resource, unsigned long long *size);\n\n"
+            "#define RESOURCES_H\n"
+            "#define RES_ARRAY_SIZE(n) (sizeof(n)/sizeof(n[0]))\n\n"
+            "typedef struct {\n\tconst char *path;\n\tconst unsigned char *data; \n\tint length;\n}resInfo;\n\n"
+            "const unsigned char* getResource(const char* resource, unsigned long long *size);\n\n"
             "#endif" << std::endl;
     fheader.close();
 }
@@ -42,24 +44,48 @@ int resource::run(void)
     for(auto i: mFileList) {
         count++;
         string var_name = string("res_" + to_string(count));
-        fsource << "static unsigned char " << var_name << "= {" << endl;
+        fsource << "static unsigned char " << var_name << "[] = {" << endl;
         {
-            ifstream inFile(i,ios::in|ios::binary);
+            ifstream inFile(i->abs_path,ios::in|ios::binary);
             if(inFile.fail()) {
                 continue;
             }
-            char c;
             auto line_count = 0;
+            auto file_len   = 0;
+            char c;
             while(inFile.get(c)) {
                 fsource << toHEX(static_cast<unsigned char >(c)) << ",";
                 if(++line_count%12 == 0) {
                     fsource << endl;
                 }
+                file_len++;
             }
             inFile.close();
+            mResList.push_back(new resInfo(i->rel_path,var_name,file_len));
         }
         fsource << "};" << endl;
     }
+
+    /* fill resList */
+    fsource << "static resInfo res_list[] = {" << endl;
+    for(auto i: mResList) {
+        fsource << "{\"" << i->path << "\"," << i->data << \
+                "," << to_string(i->length) << "}," << endl;
+    }
+    fsource << "};" << endl;
+
+    fsource << "#include <string.h>" << endl;
+    fsource << "const unsigned char* getResource(const char* resource, unsigned long long *size)" << endl;
+    fsource << "{" << endl;
+    fsource << "\tint i;" << endl;
+    fsource << "\tfor(i = 0; i < RES_ARRAY_SIZE(res_list);i++){" << endl;
+    fsource << "\t    if(0 == strncmp(resource, res_list[i].path,strlen(res_list[i].path))){" << endl;
+    fsource << "\t    	*size = res_list[i].length;" << endl;
+    fsource << "\t    	return res_list[i].data;" << endl;
+    fsource << "\t    }" << endl;
+    fsource << "\t}" << endl;
+    fsource << "\treturn NULL;" << endl;
+    fsource << "}" << endl;
 
     fsource.close();
 
@@ -98,7 +124,7 @@ int resource::trave_dir(const char* path)
         stat(p, &st);
         if(!S_ISDIR(st.st_mode)) {
             string s(p);
-            mFileList.push_back(s);
+            mFileList.push_back(new filePath(s,s));
         } else {
             trave_dir(p);
         }

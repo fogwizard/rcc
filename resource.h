@@ -14,6 +14,23 @@ std::unique_ptr<T> make_unique(Ts&&... params)
     return std::unique_ptr<T>(new T(std::forward<Ts>(params)...));
 }
 
+class resInfo
+{
+public:
+    resInfo(string name, string dat, int len):path(name),data(dat),length(len) {};
+    string path;
+    string data;
+    int length;
+};
+
+class filePath
+{
+public:
+    filePath(string s1, string s2):abs_path(s1),rel_path(s2) {}
+    string abs_path;
+    string rel_path;
+};
+
 class resource
 {
 public:
@@ -24,7 +41,8 @@ public:
     int trave_dir(const char* path);
 private:
     string mDir;
-    vector<string> mFileList;
+    vector<filePath*>  mFileList;
+    vector<resInfo *> mResList;
 };
 
 #endif
