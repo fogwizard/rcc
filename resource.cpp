@@ -46,7 +46,7 @@ int resource::run(void)
     for(auto i: mFileList) {
         count++;
         string var_name = string("res_" + to_string(count));
-        fsource << "static unsigned char " << var_name << "[] = {" << endl;
+        fsource << "static const unsigned char " << var_name << "[] = {" << endl;
         {
             ifstream inFile(i->abs_path,ios::in|ios::binary);
             if(inFile.fail()) {
@@ -69,7 +69,7 @@ int resource::run(void)
     }
 
     /* fill resList */
-    fsource << "static resInfo res_list[] = {" << endl;
+    fsource << "static const resInfo res_list[] = {" << endl;
     for(auto i: mResList) {
         fsource << "{\"" << i->path << "\"," << i->data << \
                 "," << to_string(i->length) << "}," << endl;

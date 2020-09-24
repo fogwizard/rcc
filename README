@@ -1,0 +1,10 @@
+#include "iostream"
+#include "res.h"
+
+using namespace std;
+int main(int argc, char *argv[])
+{
+    unsigned long long len = 0;
+    auto a = getResource("/lvgl/src/lv_objx/lv_ddlist.h", &len);
+    cout << "len=" << len << endl;
+}
