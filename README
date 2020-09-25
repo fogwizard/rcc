@@ -1,6 +1,7 @@
+Yet another implement of asset manager using c++11.
+
 #include "iostream"
 #include "res.h"
-
 using namespace std;
 int main(int argc, char *argv[])
 {
